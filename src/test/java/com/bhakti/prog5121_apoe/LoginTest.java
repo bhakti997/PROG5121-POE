@@ -89,7 +89,7 @@ public class LoginTest {
     void testReturnLoginStatus_success() {
         login.registerUser("kyl_1", "Ch&&sec@ke99!", "+27838968976", "Kyle", "Smith");
         login.loginUser("kyl_1", "Ch&&sec@ke99!");
-        assertEquals("Welcome Kyle, Smith it is great to see you again.", login.returnLoginStatus());
+        assertEquals("Welcome Kyle, Smith it is great to see you.", login.returnLoginStatus());
     }
 
     /** A failed login should return the correct error message. */
