@@ -41,9 +41,19 @@ public class Login {
     /**
      * Checks that a cell phone number contains the South African
      * international dialling code (+27) followed by 9 digits.
-     * Regex format follows the general E.164 international number
-     * convention (country code + subscriber number, no spaces).
-     * Reference: ITU-T E.164 numbering plan.
+     *
+     * Regex pattern adapted from Naravani (2018), who demonstrates
+     * validating mobile numbers with regular expressions in Java. The
+     * pattern was changed to the South African format (+27 followed by
+     * nine digits).
+     *
+     * Reference:
+     * Naravani, M., 2018. 16. Mobile number validation in Java using
+     * regular expression | Data validation | Netbeans [Video] Available at:
+     * <https://youtu.be/Fu4nimny_gw> [Accessed 28 September 2026].
+     *
+     * @param cellPhoneNumber the cell phone number to check
+     * @return true if the number is in the correct format, otherwise false
      */
     public boolean checkCellPhoneNumber(String cellPhoneNumber) {
         return cellPhoneNumber != null && cellPhoneNumber.matches("^\\+27[0-9]{9}$");
