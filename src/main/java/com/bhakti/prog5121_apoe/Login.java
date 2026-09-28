@@ -75,7 +75,7 @@ public class Login {
 
         StringBuilder msg = new StringBuilder();
         if (!usernameOk) msg.append("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.\n");
-        if (!passwordOk) msg.append("Password is not correctly formatted; please ensure that the password contains at least 8 characters, a capital letter, a number, and a special character.\n");
+        if (!passwordOk) msg.append("Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.\n");
         if (!cellOk) msg.append("Cell number is incorrectly formatted or does not contain an international code; please correct the number and try again.\n");
         return msg.toString().trim();
     }
@@ -97,7 +97,7 @@ public class Login {
      */
     public String returnLoginStatus() {
         if (loggedIn) {
-            return "Welcome " + firstName + ", " + lastName + " it is great to see you again.";
+            return "Welcome " + firstName + ", " + lastName + " it is great to see you.";
         }
         return "Username or password incorrect, please try again.";
     }
