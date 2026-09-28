@@ -18,7 +18,7 @@ public class PROG5121_APOE {
         // Loop until a valid username is entered.
         String username;
         while (true) {
-            System.out.println("Enter a username (underscore, max 5 characters):");
+            System.out.println("Enter a username (must contain an underscore and be no more than five characters):");
             username = scanner.nextLine();
             if (login.checkUserName(username)) {
                 System.out.println("Username successfully captured.");
@@ -31,13 +31,13 @@ public class PROG5121_APOE {
         // Loop until a valid password is entered.
         String password;
         while (true) {
-            System.out.println("Enter a password (8+ chars, capital, number, special char):");
+            System.out.println("Enter a password (at least eight characters, a capital letter, a number, and a special character):");
             password = scanner.nextLine();
             if (login.checkPasswordComplexity(password)) {
                 System.out.println("Password successfully captured.");
                 break;
             } else {
-                System.out.println("Password is not correctly formatted; please ensure that the password contains at least 8 characters, a capital letter, a number, and a special character.");
+                System.out.println("Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.");
             }
         }
 
