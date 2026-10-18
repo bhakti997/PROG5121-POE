@@ -11,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MessageTest {
 
+    // ---------- Message length (250 characters) ----------
+
+    /** Test Data message 1 is within the limit. */
     @Test
     void testCheckMessageLength_success() {
         Message message = new Message();
@@ -18,6 +21,15 @@ public class MessageTest {
                 message.checkMessageLength("Hi Mike, can you join us for dinner tonight?"));
     }
 
+    /** Test Data message 2 is within the limit. */
+    @Test
+    void testCheckMessageLength_testCase2() {
+        Message message = new Message();
+        assertEquals("Message ready to send.",
+                message.checkMessageLength("Hi Keegan, did you receive the payment?"));
+    }
+
+    /** A message over 250 characters returns the excess count. */
     @Test
     void testCheckMessageLength_failure() {
         Message message = new Message();
@@ -26,6 +38,8 @@ public class MessageTest {
                 message.checkMessageLength(longMessage));
     }
 
+    // ---------- Recipient cell number ----------
+
     @Test
     void testCheckRecipientCell_valid() {
         Message message = new Message();
@@ -33,12 +47,45 @@ public class MessageTest {
                 message.checkRecipientCell("+27718693002"));
     }
 
+    /** Test Data message 2 recipient has no international code. */
     @Test
     void testCheckRecipientCell_invalid() {
         Message message = new Message();
         assertEquals("Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.",
                 message.checkRecipientCell("08575975889"));
     }
+
+    // ---------- Message ID ----------
+
+    @Test
+    void testCheckMessageID_valid() {
+        Message message = new Message();
+        assertTrue(message.checkMessageID("0012345678"));
+    }
+
+    @Test
+    void testCheckMessageID_invalid() {
+        Message message = new Message();
+        assertFalse(message.checkMessageID("00123456789"));
+    }
+
+    /** A generated ID is exactly ten characters and passes the ID check. */
+    @Test
+    void testGenerateMessageID_length() {
+        String id = Message.generateMessageID();
+        assertEquals(10, id.length());
+        assertTrue(new Message().checkMessageID(id));
+    }
+
+    /** The confirmation text matches the brief. */
+    @Test
+    void testMessageIDGenerated_text() {
+        Message message = new Message("0012345678", "+27718693002",
+                "Hi Mike, can you join us for dinner tonight?", 0);
+        assertEquals("Message ID generated: 0012345678", message.getMessageIDGenerated());
+    }
+
+    // ---------- Message hash ----------
 
     @Test
     void testCreateMessageHash_testCase1() {
@@ -47,7 +94,7 @@ public class MessageTest {
         assertEquals("00:0:HITONIGHT", message.createMessageHash());
     }
 
-    /** Loops through the remaining test messages, as instructed in the brief. */
+    /** Loops through the test messages, as instructed in the brief. */
     @Test
     void testCreateMessageHash_loop() {
         String[][] testData = {
@@ -59,6 +106,8 @@ public class MessageTest {
             assertEquals(data[3], message.createMessageHash());
         }
     }
+
+    // ---------- Send / Disregard / Store ----------
 
     @Test
     void testSentMessage_send() {
@@ -75,14 +124,44 @@ public class MessageTest {
     }
 
     @Test
-    void testCheckMessageID_valid() {
-        Message message = new Message();
-        assertTrue(message.checkMessageID("0012345678"));
+    void testSentMessage_store() {
+        Message message = new Message(Message.generateMessageID(), "+27718693002",
+                "Hi Mike, can you join us for dinner tonight?", 2);
+        assertEquals("Message successfully stored.", message.sentMessage(3));
     }
 
+    // ---------- Totals and printing ----------
+
+    /**
+     * Only sent messages increase the total. The total is static and shared
+     * between tests, so this compares against the value before sending.
+     */
     @Test
-    void testCheckMessageID_invalid() {
-        Message message = new Message();
-        assertFalse(message.checkMessageID("00123456789"));
+    void testReturnTotalMessages() {
+        Message counter = new Message();
+        int before = counter.returnTotalMessages();
+
+        new Message(Message.generateMessageID(), "+27718693002",
+                "Hi Mike, can you join us for dinner tonight?", 0).sentMessage(1);
+        assertEquals(before + 1, counter.returnTotalMessages());
+
+        new Message(Message.generateMessageID(), "08575975889",
+                "Hi Keegan, did you receive the payment?", 1).sentMessage(2);
+        assertEquals(before + 1, counter.returnTotalMessages());
+    }
+
+    /** printMessages shows ID, hash, recipient and message for sent messages. */
+    @Test
+    void testPrintMessages() {
+        String id = Message.generateMessageID();
+        Message message = new Message(id, "+27718693002",
+                "Hi Mike, can you join us for dinner tonight?", 0);
+        message.sentMessage(1);
+
+        String printed = message.printMessages();
+        assertTrue(printed.contains("Message ID: " + id));
+        assertTrue(printed.contains("Message Hash: " + message.createMessageHash()));
+        assertTrue(printed.contains("Recipient: +27718693002"));
+        assertTrue(printed.contains("Message: Hi Mike, can you join us for dinner tonight?"));
     }
 }
