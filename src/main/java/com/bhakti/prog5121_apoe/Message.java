@@ -20,6 +20,12 @@ import java.util.Random;
  */
 public class Message {
 
+    /** Success text returned when a recipient cell number is valid. */
+    public static final String CELL_CAPTURED = "Cell phone number successfully captured.";
+
+    /** Success text returned when a message is within the length limit. */
+    public static final String MESSAGE_READY = "Message ready to send.";
+
     private String messageID;
     private String recipientCell;
     private String messageText;
@@ -47,14 +53,20 @@ public class Message {
         return messageID != null && messageID.length() <= 10;
     }
 
+    /** Returns the message ID confirmation text required by the brief. */
+    public String getMessageIDGenerated() {
+        return "Message ID generated: " + messageID;
+    }
+
     /**
-     * Checks that the recipient cell number is no more than ten characters
-     * and starts with a South African international code.
-     * Reuses the regex pattern and logic from Login.checkCellPhoneNumber().
+     * Checks that the recipient cell number starts with the South African
+     * international code. Reuses Login.checkCellPhoneNumber() so the
+     * validation rule only exists in one place.
      */
     public String checkRecipientCell(String recipientCell) {
-        if (recipientCell != null && recipientCell.matches("^\\+27[0-9]{9}$")) {
-            return "Cell phone number successfully captured.";
+        Login login = new Login();
+        if (login.checkCellPhoneNumber(recipientCell)) {
+            return CELL_CAPTURED;
         }
         return "Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.";
     }
@@ -62,7 +74,7 @@ public class Message {
     /** Checks that a message does not exceed 250 characters. */
     public String checkMessageLength(String message) {
         if (message != null && message.length() <= 250) {
-            return "Message ready to send.";
+            return MESSAGE_READY;
         }
         int excess = message.length() - 250;
         return "Message exceeds 250 characters by " + excess + "; please reduce the size.";
@@ -103,7 +115,8 @@ public class Message {
         }
     }
 
-    private String printDetails() {
+    /** Returns this message's details in the order: ID, hash, recipient, message. */
+    public String printDetails() {
         return "Message ID: " + messageID
                 + "\nMessage Hash: " + messageHash
                 + "\nRecipient: " + recipientCell
