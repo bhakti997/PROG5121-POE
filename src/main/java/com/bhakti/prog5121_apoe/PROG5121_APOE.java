@@ -5,7 +5,8 @@ import java.util.Scanner;
 /**
  * Console entry point for the PROG5121 APOE registration and login
  * feature. Prompts the user for their details, validates each field
- * immediately using the Login class, then allows the user to log in.
+ * immediately using the Login class, then allows the user to log in
+ * and send messages through the QuickChat feature.
  *
  * @author Bhakti
  */
@@ -71,8 +72,76 @@ public class PROG5121_APOE {
         System.out.println("Enter your password:");
         String loginPassword = scanner.nextLine();
 
-        login.loginUser(loginUsername, loginPassword);
+        boolean loggedInSuccessfully = login.loginUser(loginUsername, loginPassword);
         System.out.println(login.returnLoginStatus());
+
+        if (loggedInSuccessfully) {
+            System.out.println("\nWelcome to QuickChat.");
+            System.out.println("How many messages would you like to send?");
+            int numMessages = Integer.parseInt(scanner.nextLine());
+
+            boolean quit = false;
+            int messageCounter = 0;
+
+            while (!quit) {
+                System.out.println("\n1) Send Messages");
+                System.out.println("2) Show recently sent messages");
+                System.out.println("3) Quit");
+                String menuChoice = scanner.nextLine();
+
+                switch (menuChoice) {
+                    case "1":
+                        for (int i = 0; i < numMessages; i++) {
+                            Message validator = new Message();
+
+                            String recipient;
+                            while (true) {
+                                System.out.println("Enter recipient cell number:");
+                                recipient = scanner.nextLine();
+                                String cellResult = validator.checkRecipientCell(recipient);
+                                System.out.println(cellResult);
+                                if (cellResult.equals("Cell phone number successfully captured.")) break;
+                            }
+
+                            String messageText;
+                            while (true) {
+                                System.out.println("Enter your message:");
+                                messageText = scanner.nextLine();
+                                String lengthResult = validator.checkMessageLength(messageText);
+                                System.out.println(lengthResult);
+                                if (lengthResult.equals("Message ready to send.")) break;
+                            }
+
+                            String messageID = Message.generateMessageID();
+                            System.out.println("Message ID generated: " + messageID);
+
+                            Message message = new Message(messageID, recipient, messageText, messageCounter);
+                            messageCounter++;
+
+                            System.out.println("1) Send Message");
+                            System.out.println("2) Disregard Message");
+                            System.out.println("3) Store Message to send later");
+                            String sendChoice = scanner.nextLine();
+                            String result = message.sentMessage(Integer.parseInt(sendChoice));
+                            System.out.println(result);
+
+                            if (sendChoice.equals("1")) {
+                                System.out.println(message.printMessages());
+                            }
+                        }
+                        System.out.println("\nTotal messages sent: " + new Message().returnTotalMessages());
+                        break;
+                    case "2":
+                        System.out.println("Coming Soon.");
+                        break;
+                    case "3":
+                        quit = true;
+                        break;
+                    default:
+                        System.out.println("Please select a valid option (1-3).");
+                }
+            }
+        }
 
         scanner.close();
     }
