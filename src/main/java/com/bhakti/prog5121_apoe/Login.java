@@ -106,6 +106,6 @@ public class Login {
      * REFERENCES
      *
      * Naravani, M., 2018. 16. Mobile number validation in Java using
-     * regular expression | Data validation | Netbeans [Video] Available at:
+     * regular expression | Data validation | Netbeans [video online] Available at:
      * <https://youtu.be/Fu4nimny_gw> [Accessed 28 September 2026].
      */
