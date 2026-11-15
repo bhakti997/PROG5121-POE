@@ -1,12 +1,11 @@
 package com.bhakti.prog5121_apoe;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
- * Console entry point for the PROG5121 APOE registration and login
- * feature. Prompts the user for their details, validates each field
- * immediately using the Login class, then allows the user to log in
- * and send messages through the QuickChat feature.
+ * Console entry point for the PROG5121 APOE. Registers and logs in a user,
+ * then lets them send, store and manage messages through QuickChat.
  *
  * @author Bhakti
  */
@@ -16,7 +15,6 @@ public class PROG5121_APOE {
         Scanner scanner = new Scanner(System.in);
         Login login = new Login();
 
-        // Loop until a valid username is entered.
         String username;
         while (true) {
             System.out.println("Enter a username (must contain an underscore and be no more than five characters):");
@@ -24,12 +22,10 @@ public class PROG5121_APOE {
             if (login.checkUserName(username)) {
                 System.out.println("Username successfully captured.");
                 break;
-            } else {
-                System.out.println("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.");
             }
+            System.out.println("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.");
         }
 
-        // Loop until a valid password is entered.
         String password;
         while (true) {
             System.out.println("Enter a password (at least eight characters, a capital letter, a number, and a special character):");
@@ -37,12 +33,10 @@ public class PROG5121_APOE {
             if (login.checkPasswordComplexity(password)) {
                 System.out.println("Password successfully captured.");
                 break;
-            } else {
-                System.out.println("Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.");
             }
+            System.out.println("Password is not correctly formatted; please ensure that the password contains at least eight characters, a capital letter, a number, and a special character.");
         }
 
-        // Loop until a valid cell number is entered.
         String cellPhoneNumber;
         while (true) {
             System.out.println("Enter your South African cell number (e.g. +27838968976):");
@@ -50,9 +44,8 @@ public class PROG5121_APOE {
             if (login.checkCellPhoneNumber(cellPhoneNumber)) {
                 System.out.println("Cell number successfully captured.");
                 break;
-            } else {
-                System.out.println("Cell number is incorrectly formatted or does not contain an international code; please correct the number and try again.");
             }
+            System.out.println("Cell number is incorrectly formatted or does not contain an international code; please correct the number and try again.");
         }
 
         System.out.println("Enter your first name:");
@@ -61,11 +54,8 @@ public class PROG5121_APOE {
         System.out.println("Enter your last name:");
         String lastName = scanner.nextLine();
 
-        // Final registration check (also re-validates all fields together).
-        String registerResult = login.registerUser(username, password, cellPhoneNumber, firstName, lastName);
-        System.out.println(registerResult);
+        System.out.println(login.registerUser(username, password, cellPhoneNumber, firstName, lastName));
 
-        // Prompt the user to log in with the details they just registered.
         System.out.println("\nNow please log in.");
         System.out.println("Enter your username:");
         String loginUsername = scanner.nextLine();
@@ -75,22 +65,24 @@ public class PROG5121_APOE {
         boolean loggedInSuccessfully = login.loginUser(loginUsername, loginPassword);
         System.out.println(login.returnLoginStatus());
 
-        // Messages can only be sent after a successful login.
         if (loggedInSuccessfully) {
+            Message.setSender(firstName + " " + lastName);
             runQuickChat(scanner);
         }
 
         scanner.close();
     }
 
-    /**
-     * Runs the QuickChat menu. The user chooses how many messages they want
-     * to send, then the menu loops until they choose to quit.
-     */
+    /** Runs the main QuickChat menu until the user chooses to quit. */
     private static void runQuickChat(Scanner scanner) {
         System.out.println("\nWelcome to QuickChat.");
-        int numMessages = readNumber(scanner, "How many messages would you like to send?", 1, Integer.MAX_VALUE);
 
+        int loaded = Message.loadStoredMessagesFromJson();
+        if (loaded > 0) {
+            System.out.println(loaded + " stored message(s) loaded from file.");
+        }
+
+        int numMessages = readNumber(scanner, "How many messages would you like to send?", 1, Integer.MAX_VALUE);
         boolean messagesEntered = false;
         boolean quit = false;
 
@@ -98,6 +90,7 @@ public class PROG5121_APOE {
             System.out.println("\n1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
+            System.out.println("4) Stored Messages");
             String menuChoice = scanner.nextLine().trim();
 
             switch (menuChoice) {
@@ -115,16 +108,70 @@ public class PROG5121_APOE {
                 case "3":
                     quit = true;
                     break;
+                case "4":
+                    runStoredMessagesMenu(scanner);
+                    break;
                 default:
-                    System.out.println("Please select a valid option (1-3).");
+                    System.out.println("Please select a valid option (1-4).");
             }
         }
     }
 
-    /**
-     * Lets the user enter exactly numMessages messages. The loop counter
-     * doubles as the message number used in the message hash.
-     */
+    /** Runs the Stored Messages menu, which works on the message arrays. */
+    private static void runStoredMessagesMenu(Scanner scanner) {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\nStored Messages");
+            System.out.println("1) Display sender and recipient of all stored messages");
+            System.out.println("2) Display the longest message");
+            System.out.println("3) Search for a message ID");
+            System.out.println("4) Search for all messages for a recipient");
+            System.out.println("5) Delete a message using its message hash");
+            System.out.println("6) Display a report of all messages");
+            System.out.println("7) Display stored messages read from the JSON file");
+            System.out.println("0) Back to main menu");
+
+            int choice = readNumber(scanner, "Choose an option:", 0, 7);
+
+            switch (choice) {
+                case 1:
+                    System.out.println(Message.displaySenderAndRecipient());
+                    break;
+                case 2:
+                    System.out.println("Longest message: " + Message.returnLongestMessage());
+                    break;
+                case 3:
+                    System.out.println("Enter the message ID:");
+                    System.out.println(Message.searchByMessageID(scanner.nextLine().trim()));
+                    break;
+                case 4:
+                    System.out.println("Enter the recipient cell number:");
+                    List<String> found = Message.searchByRecipient(scanner.nextLine().trim());
+                    if (found.isEmpty()) {
+                        System.out.println("No messages found for that recipient.");
+                    }
+                    for (String text : found) {
+                        System.out.println("- " + text);
+                    }
+                    break;
+                case 5:
+                    System.out.println("Enter the message hash:");
+                    System.out.println(Message.deleteMessageByHash(scanner.nextLine().trim().toUpperCase()));
+                    break;
+                case 6:
+                    System.out.println(Message.displayReport());
+                    break;
+                case 7:
+                    Message.loadStoredMessagesFromJson();
+                    System.out.println(Message.displayStoredMessages());
+                    break;
+                default:
+                    back = true;
+            }
+        }
+    }
+
+    /** Lets the user enter exactly numMessages messages; the loop counter is the message number. */
     private static void sendMessages(Scanner scanner, int numMessages) {
         for (int i = 0; i < numMessages; i++) {
             Message validator = new Message();
@@ -138,9 +185,14 @@ public class PROG5121_APOE {
                     "1) Send Message\n2) Disregard Message\n3) Store Message to send later", 1, 3);
             System.out.println(message.sentMessage(sendChoice));
 
-            // Only a sent message has its full details displayed.
             if (sendChoice == 1) {
                 System.out.println(message.printDetails());
+            }
+            if (sendChoice == 2) {
+                System.out.println("Type 0 and press Enter to delete it, or just press Enter to keep it.");
+                if (scanner.nextLine().trim().equals("0")) {
+                    System.out.println(message.deleteMessage());
+                }
             }
         }
         System.out.println("\nTotal messages sent: " + new Message().returnTotalMessages());
@@ -172,10 +224,7 @@ public class PROG5121_APOE {
         }
     }
 
-    /**
-     * Shows the prompt and reads a whole number between min and max,
-     * asking again if the user types letters or a number out of range.
-     */
+    /** Reads a whole number between min and max, asking again if the input is invalid. */
     private static int readNumber(Scanner scanner, String prompt, int min, int max) {
         while (true) {
             System.out.println(prompt);
@@ -185,7 +234,7 @@ public class PROG5121_APOE {
                     return value;
                 }
             } catch (NumberFormatException e) {
-                // Not a number: fall through to the retry message below.
+                // Not a number, so ask again below.
             }
             System.out.println("Invalid input. Please try again.");
         }
