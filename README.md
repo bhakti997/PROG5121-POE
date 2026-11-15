@@ -37,3 +37,8 @@ at: <https://github.com/stleary/JSON-java> [Accessed 17 October 2026].
 Naravani, M., 2018. 16. Mobile number validation in Java using regular
 expression | Data validation | Netbeans [video online] Available at:
 <https://youtu.be/Fu4nimny_gw> [Accessed 28 September 2026].
+
+## Part 3: Stored Messages
+- Arrays for sent, disregarded, stored messages, hashes and IDs
+- Stored messages read back from the JSON file
+- Stored Messages menu: sender/recipient, longest message, search by ID or recipient, delete by hash, full report
