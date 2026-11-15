@@ -42,3 +42,4 @@ expression | Data validation | Netbeans [video online] Available at:
 - Arrays for sent, disregarded, stored messages, hashes and IDs
 - Stored messages read back from the JSON file
 - Stored Messages menu: sender/recipient, longest message, search by ID or recipient, delete by hash, full report
+- Run mvn test to run the unit tests
